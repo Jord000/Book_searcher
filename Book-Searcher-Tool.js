@@ -3,7 +3,7 @@ const axios = require('axios')
 const fsPromise = require('fs/promises')
 const { promiseHooks } = require('v8')
 
-function requestAnAuthorAndBook() {
+const requestAnAuthorAndBook = () => {
   return inquirer
     .prompt([
       {
@@ -40,7 +40,7 @@ function requestAnAuthorAndBook() {
     })
 }
 
-function requestFurtherInfo(searchObject) {
+const requestFurtherInfo = (searchObject) => {
   return inquirer
     .prompt([
       {
@@ -103,6 +103,43 @@ const repeatSearch = () => {
     })
 }
 
+const searchByGenre = () => {
+  return inquirer
+    .prompt([
+      {
+        type:'list',
+        name: 'genre',
+        message: 'Please choose a genre --',
+        choices: [
+      'Fiction',
+      //choices available - action & adventure, animals, classics, dystopian, Fantasy,Horror,Mystery & Detective, Romance, Science Fiction, Sports, Thrillers
+      'Art', //try another keyword to help the search
+      'Cooking',
+      'Drama',
+      'History',
+      'Nature',
+      'Philosophy',
+      'Religion',
+      'Science',
+      'Technology',
+      'Travel',
+      'True Crime',
+            ]
+      },
+    ])
+    .then((answers) => {
+      return axios.get(
+        `https://www.googleapis.com/books/v1/volumes?q=subject:${answers.genre}`
+      )
+    })
+    .then((searchObject) => {
+      console.log(searchObject.data.items[0].volumeInfo)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
+
 const masterFunction = () => {
   return Promise.all([requestAnAuthorAndBook()]).then((searchObject) => {
     Promise.all([requestFurtherInfo(searchObject)]).then(() => {
@@ -111,10 +148,14 @@ const masterFunction = () => {
   })
 }
 
-masterFunction()
-/* loop now working promises inside promises could work better with one large async await function but need more training for this */
+// masterFunction()
 
-/* additional functions to consider
+searchByGenre()
+
+//Dev notes
+/* recursion working. Master function could be improved
+need to deal with error when author is not shown to book eg stan lee spiderman
+additional functions to consider
 search by genre
 provide top rated books by an author
 */
