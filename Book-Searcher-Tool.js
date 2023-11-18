@@ -16,7 +16,7 @@ const requestAnAuthorAndBook = () => {
         message: 'Please enter an author --',
       },
       {
-        name: 'book1',
+        name: 'title',
         message: 'Please enter a book title --',
       },
     ])
@@ -25,7 +25,7 @@ const requestAnAuthorAndBook = () => {
         "Good choice! I'll see if we have it, now processing, please wait..."
       )
       return axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=${answers.book1}+inauthor:${answers.author}`
+        `https://www.googleapis.com/books/v1/volumes?q=${answers.title}+inauthor:${answers.author}`
       )
     })
     .then((searchObject) => {
@@ -51,7 +51,7 @@ const requestFurtherInfo = (searchObject) => {
     ])
     .then((answer) => {
       const volInfo = searchObject[0].data.items[0].volumeInfo
-      const textToWrite = `Title: ${volInfo.title}
+      const textToWrite = `          Title: ${volInfo.title}
           Authors: ${volInfo.authors}
           Publisher: ${volInfo.publisher}
           Published Date: ${volInfo.publishedDate}
@@ -107,33 +107,85 @@ const searchByGenre = () => {
   return inquirer
     .prompt([
       {
-        type:'list',
+        type: 'list',
         name: 'genre',
         message: 'Please choose a genre --',
         choices: [
-      'Fiction',
-      //choices available - action & adventure, animals, classics, dystopian, Fantasy,Horror,Mystery & Detective, Romance, Science Fiction, Sports, Thrillers
-      'Art', //try another keyword to help the search
-      'Cooking',
-      'Drama',
-      'History',
-      'Nature',
-      'Philosophy',
-      'Religion',
-      'Science',
-      'Technology',
-      'Travel',
-      'True Crime',
-            ]
+          'Fiction',
+          'Art',
+          'Cooking',
+          'Drama',
+          'History',
+          'Nature',
+          'Philosophy',
+          'Religion',
+          'Science',
+          'Technology',
+          'Travel',
+          'True Crime',
+        ],
       },
     ])
+    .then(({ genre }) => {
+      if (genre === 'Fiction') {
+        return inquirer.prompt([
+          {
+            type: 'list',
+            name: 'genre',
+            message: 'Please choose a sub-genre for Fiction --',
+            choices: [
+              'Action & Adventure',
+              'Animals',
+              'Classics',
+              'Dystopian',
+              'Fantasy',
+              'Horror',
+              'Mystery & Detective',
+              'Romance',
+              'Science Fiction',
+              'Sports',
+              'Thrillers',
+            ],
+          },
+        ])
+      } else if (genre === 'Art') {
+        return inquirer.prompt([
+          {
+            type: 'list',
+            name: 'genre',
+            message: 'Please choose a sub-genre for Art --',
+            choices: [
+              'Art & Politics',
+              'Body Art & Tattooing',
+              'Ceramics',
+              'Color Theory',
+              'Digital',
+              'Film & Video',
+              'Graffiti & Street Art',
+              'LGBTQ+ Artists',
+              'Popular Culture',
+              'Sculpture & Installation',
+              'Video Game Art',
+            ],
+          },
+        ])
+      }
+    })
+
     .then((answers) => {
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=subject:${answers.genre}`
       )
     })
     .then((searchObject) => {
-      console.log(searchObject.data.items[0].volumeInfo)
+      const { title, authors, publisher, publishedDate, description } =
+        searchObject.data.items[0].volumeInfo
+      const textToWrite =     `          Title: ${title}
+          Authors: ${authors}
+          Publisher: ${publisher}
+          Published Date: ${publishedDate}
+          Description: ${description}`
+      console.log(textToWrite)
     })
     .catch((err) => {
       console.log(err)
@@ -141,8 +193,8 @@ const searchByGenre = () => {
 }
 
 const masterFunction = () => {
-  return Promise.all([requestAnAuthorAndBook()]).then((searchObject) => {
-    Promise.all([requestFurtherInfo(searchObject)]).then(() => {
+  requestAnAuthorAndBook().then((searchObject) => {
+    requestFurtherInfo(searchObject).then(() => {
       repeatSearch()
     })
   })
@@ -153,9 +205,9 @@ const masterFunction = () => {
 searchByGenre()
 
 //Dev notes
-/* recursion working. Master function could be improved
-need to deal with error when author is not shown to book eg stan lee spiderman
+/* recursion working. Master function improved
 additional functions to consider
 search by genre
 provide top rated books by an author
+need to deal with error when author is not shown to book eg stan lee spiderman
 */
