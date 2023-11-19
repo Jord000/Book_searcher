@@ -371,8 +371,6 @@ const masterFunction = () => {
 masterFunction()
 
 //Dev notes
-/* recursion working. Master function improved
-additional functions to consider
-provide top rated books by an author
-need to deal with error when author is not shown to book eg stan lee spiderman
+/* needs user testing for further function ideas and experience feedback
+needs packaging and testing abroad
 */
