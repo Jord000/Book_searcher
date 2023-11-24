@@ -371,6 +371,10 @@ const masterFunction = () => {
 masterFunction()
 
 //Dev notes
-/* needs user testing for further function ideas and experience feedback
+/* 
+userfeedback - 
+after search for author and title confirm right book from options
 needs packaging and testing abroad
+needs presenting and readme file
+
 */
