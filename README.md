@@ -1,6 +1,7 @@
 https://www.npmjs.com/package/book-searcher-tool
 
-# Book-Searcher-Tool a CLI app for finding books
+# Book-Searcher-Tool 
+a CLI app for finding books
 
 The book searcher tool is a command line interface app to search through Google's books API and retrieve the closest or best results on an input. Once installed and ran properly you will be presented with a menu to proceed via enter/return
 
