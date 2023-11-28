@@ -1,13 +1,14 @@
 const inquirer = require('inquirer')
 const axios = require('axios')
 const fsPromise = require('fs/promises')
-const { promiseHooks } = require('v8')
 
 const fileCheck = fsPromise.access(`${__dirname}/books-found`).catch(() => {
   return fsPromise.mkdir(`${__dirname}/books-found`)
 })
 
 const requestAnAuthorAndBook = () => {
+  let authorChosen = ''
+  let titleChosen = ''
   return inquirer
     .prompt([
       {
@@ -19,7 +20,9 @@ const requestAnAuthorAndBook = () => {
         message: 'Please enter a book title --',
       },
     ])
-    .then(({title,author}) => {
+    .then(({ title, author }) => {
+      authorChosen = author
+      titleChosen = title
       console.log(
         "Good choice! I'll see if we have it, now processing, please wait..."
       )
@@ -28,18 +31,43 @@ const requestAnAuthorAndBook = () => {
       )
     })
     .then((searchObject) => {
-      const authors = searchObject.data.items[0].volumeInfo.authors.join(' ')
-      const title = searchObject.data.items[0].volumeInfo.title
-
-      console.log(`
-      Your chosen book: 
-      ${authors}
-      ${title}
-      `)
+      const resultsArray = searchObject.data.items
+      if (!resultsArray) {
+        return Promise.reject(new Error('No Book Found'))
+      } else {
+        inquirer.prompt([
+          {
+            type: 'list',
+            name: 'authorAndTitle',
+            message: `
+Please choose one of the top results for ${authorChosen}, ${titleChosen} --`,
+            choices: [
+              `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
+              `${resultsArray[1].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
+              `${resultsArray[2].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
+              `${resultsArray[3].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
+              `${resultsArray[4].volumeInfo.title} by ${resultsArray[5].volumeInfo.authors}`,
+            ],
+          },
+        ])
+      }
+    })
+    .then(({ authorAndTitle }) => {
+      return axios.get(
+        `https://www.googleapis.com/books/v1/volumes?q=:${authorAndTitle}`
+      )
+    })
+    .then((searchObject) => {
+      const { title, authors } = searchObject.data.items[0].volumeInfo
+      const genreBook = `         
+          Your Chosen book for ${authorChosen} ${titleChosen}:   
+          Title: ${title}
+          Authors: ${authors}`
+      console.log(genreBook)
       return searchObject
     })
     .catch((err) => {
-      console.log('no books found')
+      console.log('Error - No Book Found')
     })
 }
 
@@ -82,7 +110,7 @@ ${volInfo.description}
       )
     })
     .catch((err) => {
-      console.log('no book found')
+      console.log('Error - No Book Found')
     })
 }
 
@@ -108,121 +136,117 @@ const repeatSearch = () => {
 
 const searchByGenre = () => {
   let genreChosen = ''
-  return (
-    inquirer
-      .prompt([
-        {
-          type: 'list',
-          name: 'genre',
-          message: 'Please choose a genre --',
-          choices: [
-            'Fiction',
-            'Art',
-            'Cooking',
-            'Drama',
-            'History',
-            'Nature',
-            'Philosophy',
-            'Religion',
-            'Science',
-            'Technology',
-            'Travel',
-            'True Crime',
-          ],
-        },
-      ])
-      .then(({ genre }) => {
-        if (genre === 'Fiction') {
-          return inquirer.prompt([
-            {
-              type: 'list',
-              name: 'genre',
-              message: 'Please choose a sub-genre for Fiction --',
-              choices: [
-                'Action & Adventure',
-                'Animals',
-                'Classics',
-                'Dystopian',
-                'Fantasy',
-                'Horror',
-                'Mystery & Detective',
-                'Romance',
-                'Science Fiction',
-                'Sports',
-                'Thrillers',
-              ],
-            },
-          ])
-        } else if (genre === 'Art') {
-          return inquirer.prompt([
-            {
-              type: 'list',
-              name: 'genre',
-              message: 'Please choose a sub-genre for Art --',
-              choices: [
-                'Art & Politics',
-                'Body Art & Tattooing',
-                'Ceramics',
-                'Color Theory',
-                'Digital',
-                'Film & Video',
-                'Graffiti & Street Art',
-                'LGBTQ+ Artists',
-                'Popular Culture',
-                'Sculpture & Installation',
-                'Video Game Art',
-              ],
-            },
-          ])
-        } else {
-          return { genre: genre }
-        }
-      })
-      .then(({ genre }) => {
-        genreChosen = genre
-        return axios.get(
-          `https://www.googleapis.com/books/v1/volumes?q=subject:${genre}`
-        )
-      })
-      .then((searchObject) => {
-        const resultsArray = searchObject.data.items
+  return inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'genre',
+        message: 'Please choose a genre --',
+        choices: [
+          'Fiction',
+          'Art',
+          'Cooking',
+          'Drama',
+          'History',
+          'Nature',
+          'Philosophy',
+          'Religion',
+          'Science',
+          'Technology',
+          'Travel',
+          'True Crime',
+        ],
+      },
+    ])
+    .then(({ genre }) => {
+      if (genre === 'Fiction') {
         return inquirer.prompt([
           {
             type: 'list',
-            name: 'topGenre',
-            message: `
-Please choose one of the top results for ${genreChosen} --`,
+            name: 'genre',
+            message: 'Please choose a sub-genre for Fiction --',
             choices: [
-              `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
-              `${resultsArray[1].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
-              `${resultsArray[2].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
-              `${resultsArray[3].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
-              `${resultsArray[4].volumeInfo.title} by ${resultsArray[5].volumeInfo.authors}`,
+              'Action & Adventure',
+              'Animals',
+              'Classics',
+              'Dystopian',
+              'Fantasy',
+              'Horror',
+              'Mystery & Detective',
+              'Romance',
+              'Science Fiction',
+              'Sports',
+              'Thrillers',
             ],
           },
         ])
-      })
-      .then(({ topGenre }) => {
-        return axios.get(
-          `https://www.googleapis.com/books/v1/volumes?q=:${topGenre}`
-        )
-      })
-
-      //
-      .then((searchObject) => {
-        const { title, authors, publisher, publishedDate, description } =
-          searchObject.data.items[0].volumeInfo
-        const genreBook = `         
+      } else if (genre === 'Art') {
+        return inquirer.prompt([
+          {
+            type: 'list',
+            name: 'genre',
+            message: 'Please choose a sub-genre for Art --',
+            choices: [
+              'Art & Politics',
+              'Body Art & Tattooing',
+              'Ceramics',
+              'Color Theory',
+              'Digital',
+              'Film & Video',
+              'Graffiti & Street Art',
+              'LGBTQ+ Artists',
+              'Popular Culture',
+              'Sculpture & Installation',
+              'Video Game Art',
+            ],
+          },
+        ])
+      } else {
+        return { genre: genre }
+      }
+    })
+    .then(({ genre }) => {
+      genreChosen = genre
+      return axios.get(
+        `https://www.googleapis.com/books/v1/volumes?q=subject:${genre}`
+      )
+    })
+    .then((searchObject) => {
+      const resultsArray = searchObject.data.items
+      return inquirer.prompt([
+        {
+          type: 'list',
+          name: 'topGenre',
+          message: `
+Please choose one of the top results for ${genreChosen} --`,
+          choices: [
+            `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
+            `${resultsArray[1].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
+            `${resultsArray[2].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
+            `${resultsArray[3].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
+            `${resultsArray[4].volumeInfo.title} by ${resultsArray[5].volumeInfo.authors}`,
+          ],
+        },
+      ])
+    })
+    .then(({ topGenre }) => {
+      return axios.get(
+        `https://www.googleapis.com/books/v1/volumes?q=:${topGenre}`
+      )
+    })
+    .then((searchObject) => {
+      const { title, authors, publisher, publishedDate, description } =
+        searchObject.data.items[0].volumeInfo
+      const genreBook = `         
           Your Chosen book in ${genreChosen}:   
           Title: ${title}
           Authors: ${authors}`
-        console.log(genreBook)
-        return searchObject
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-  )
+      console.log(genreBook)
+      return searchObject
+    })
+    .catch((err) => {
+      console.log('Error - No Book Found')
+    })
 }
 
 const topBooksByAuthor = () => {
@@ -266,7 +290,7 @@ Please choose one of the top results for ${authorChosen} --`,
         `https://www.googleapis.com/books/v1/volumes?q=:${authorsTopBooks}`
       )
     })
-    .catch('no books found')
+    .catch((err) => console.log('Error - No Books Found'))
 }
 
 const topBooksByTitle = () => {
@@ -283,9 +307,7 @@ const topBooksByTitle = () => {
       console.log(
         `Good choice! Let's see if we can get some matches to ${title}, now processing, please wait...`
       )
-      return axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=${title}`
-      )
+      return axios.get(`https://www.googleapis.com/books/v1/volumes?q=${title}`)
     })
     .then((searchObject) => {
       const resultsArray = searchObject.data.items
@@ -310,7 +332,7 @@ Please choose one of the top results for ${titleChosen} --`,
         `https://www.googleapis.com/books/v1/volumes?q=:${titleTopBooks}`
       )
     })
-    .catch('no books found')
+    .catch((err) => console.log('Error - No Books Found'))
 }
 
 const masterFunction = () => {
@@ -342,39 +364,46 @@ const masterFunction = () => {
     .then(({ menu }) => {
       if (menu === 'Title & Author') {
         requestAnAuthorAndBook().then((searchObject) => {
-          requestFurtherInfo(searchObject).then(() => {
+          if (searchObject) {
+            requestFurtherInfo(searchObject).then(() => {
+              repeatSearch()
+            })
+          } else {
             repeatSearch()
-          })
+          }
         })
       } else if (menu === 'Genre') {
         searchByGenre().then((searchObject) => {
-          requestFurtherInfo(searchObject).then(() => {
+          if (searchObject) {
+            requestFurtherInfo(searchObject).then(() => {
+              repeatSearch()
+            })
+          } else {
             repeatSearch()
-          })
+          }
         })
       } else if (menu === 'Top Books By Author') {
         topBooksByAuthor().then((searchObject) => {
-          requestFurtherInfo(searchObject).then(() => {
+          if (searchObject) {
+            requestFurtherInfo(searchObject).then(() => {
+              repeatSearch()
+            })
+          } else {
             repeatSearch()
-          })
+          }
         })
       } else if (menu === 'Top Books By Title') {
         topBooksByTitle().then((searchObject) => {
-          requestFurtherInfo(searchObject).then(() => {
+          if (searchObject) {
+            requestFurtherInfo(searchObject).then(() => {
+              repeatSearch()
+            })
+          } else {
             repeatSearch()
-          })
+          }
         })
       }
     })
 }
 
 masterFunction()
-
-//Dev notes
-/* 
-userfeedback - 
-after search for author and title confirm right book from options
-needs packaging and testing abroad
-needs presenting and readme file
-
-*/
