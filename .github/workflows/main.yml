@@ -1,0 +1,28 @@
+name: main
+
+on:
+  pull_request:
+    branches:
+      -main
+  workflow_dispatch:
+  
+jobs:
+  test_set_up:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout and clone repo
+        uses: actions/checkout@v4.1.1
+      - name: install packages
+        run: npm install
+
+  test_app:
+    needs: test_set_up
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout and clone repo
+        uses: actions/checkout@v4.1.1
+      - name: install packages
+        run: npm install  
+      - name: run book-searcher
+        uses:  npm run book-searcher@v1
+ 
