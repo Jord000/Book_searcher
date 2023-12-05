@@ -24,5 +24,5 @@ jobs:
       - name: install packages
         run: npm install  
       - name: run book-searcher
-        uses:  npm run book-searcher@v1
+        run:  npm run book-searcher
  
