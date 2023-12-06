@@ -1,6 +1,6 @@
 {
   "name": "book-searcher-tool-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A tool for searching books as a cli",
   "main": "book-searcher-tool.js",
   "scripts": {
