@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "To get used to using promises, we have put together some challenges below for you to complete",
   "scripts": {
-     "book-searcher": "node book-searcher-tool.js"
+    "test": "jest",
+    "book-searcher": "node book-searcher-tool.js"
   },
   "bin": {
-    "book-searcher-tool": "npm run book-searcher # run the "book-searcher" package script"
+    "book-searcher-tool": "./book-searcher-tool.js"
   },
   "repository": {
     "type": "git",
