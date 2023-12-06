@@ -1,5 +1,13 @@
 https://www.npmjs.com/package/book-searcher-tool
 
+# Installation & running
+```console
+npm i book-searcher-tool-cli
+```
+```console
+npx book-searcher
+```
+
 # Book-Searcher-Tool 
 a CLI app for finding books
 
