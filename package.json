@@ -2,18 +2,17 @@
   "name": "book-searcher-tool-cli",
   "version": "1.0.0",
   "description": "A tool for searching books as a cli",
+  "main": "book-searcher-tool.js",
   "scripts": {
-    "test": "jest",
     "book-searcher": "node book-searcher-tool.js"
   },
-  "bin": {
-    "book-searcher-tool": "./book-searcher-tool.js"
-  },
+  "bin": "./book-searcher-tool.js",
+  
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Jord000/Book_searcher.git"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   
   "homepage": "https://github.com/Jord000/Book_searcher.git#readme",
   "devDependencies": {
