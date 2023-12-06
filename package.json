@@ -15,7 +15,7 @@
   },
   "license": "UNLICENSED",
   
-  "homepage": "https://github.com/Jord000/Book_searcher.git",
+  "homepage": "https://github.com/Jord000/Book_searcher.git#readme",
   "devDependencies": {
     "jest": "^26.6.3"
   },
