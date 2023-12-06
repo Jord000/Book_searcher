@@ -1,7 +1,7 @@
 {
   "name": "book-searcher-tool",
   "version": "1.0.0",
-  "description": "To get used to using promises, we have put together some challenges below for you to complete",
+  "description": "A tool for searching books as a cli",
   "scripts": {
     "test": "jest",
     "book-searcher": "node book-searcher-tool.js"
@@ -11,13 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/northcoders/fun-promises-playground.git"
+    "url": "git+https://github.com/Jord000/Book_searcher.git"
   },
   "license": "UNLICENSED",
-  "bugs": {
-    "url": "https://github.com/northcoders/fun-promises-playground/issues"
-  },
-  "homepage": "https://github.com/northcoders/fun-promises-playground#readme",
+  
+  "homepage": "https://github.com/Jord000/Book_searcher.git",
   "devDependencies": {
     "jest": "^26.6.3"
   },
