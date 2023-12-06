@@ -1,5 +1,5 @@
 {
-  "name": "book-searcher-tool",
+  "name": "book-searcher-tool-cli",
   "version": "1.0.0",
   "description": "A tool for searching books as a cli",
   "scripts": {
