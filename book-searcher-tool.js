@@ -37,7 +37,7 @@ const requestAnAuthorAndBook = () => {
       if (!resultsArray) {
         return Promise.reject(new Error('No Book Found'))
       } else {
-        inquirer.prompt([
+        return inquirer.prompt([
           {
             type: 'list',
             name: 'authorAndTitle',
@@ -55,17 +55,18 @@ Please choose one of the top results for ${authorChosen}, ${titleChosen} --`,
       }
     })
     .then(({ authorAndTitle }) => {
+ 
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=:${authorAndTitle}`
       )
     })
     .then((searchObject) => {
       const { title, authors } = searchObject.data.items[0].volumeInfo
-      const genreBook = `         
+      const authorBook = `         
           Your Chosen book for ${authorChosen} ${titleChosen}:   
           Title: ${title}
           Authors: ${authors}`
-      console.log(genreBook)
+      console.log(authorBook)
       return searchObject
     })
     .catch((err) => {
@@ -84,13 +85,13 @@ const requestFurtherInfo = (searchObject) => {
     ])
     .then((answer) => {
       const volInfo = searchObject.data.items[0].volumeInfo
-      const textToWrite = `          Title: ${volInfo.title}
-          Authors: ${volInfo.authors}
-          Publisher: ${volInfo.publisher}
-          Published Date: ${volInfo.publishedDate}
+      const textToWrite = `          Title: ${volInfo.title|| 'No Title'}
+          Authors: ${volInfo.authors || 'No Author'}
+          Publisher: ${volInfo.publisher || 'No Publisher'}
+          Published Date: ${volInfo.publishedDate || 'No Publish Date'}
           Description: 
           
-${volInfo.description}
+${volInfo.description||'No Description'} 
           ___________`
       if (
         answer.moreInfo.toLowerCase() === 'y' ||
