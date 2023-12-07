@@ -5,7 +5,7 @@ https://www.npmjs.com/package/book-searcher-tool
 npm i book-searcher-tool-cli
 ```
 ```console
-npx book-searcher
+npx book-searcher-tool-cli
 ```
 
 # Book-Searcher-Tool 
