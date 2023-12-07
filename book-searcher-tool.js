@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
-const inquirer = require('inquirer')
-const axios = require('axios')
-const fsPromise = require('fs/promises')
+const inquirer = require('inquirer');
+const axios = require('axios');
+const fsPromise = require('fs/promises');
 
 const fileCheck = fsPromise.access(`${__dirname}/books-found`).catch(() => {
-  return fsPromise.mkdir(`${__dirname}/books-found`)
-})
+  return fsPromise.mkdir(`${__dirname}/books-found`);
+});
 
 const requestAnAuthorAndBook = () => {
-  let authorChosen = ''
-  let titleChosen = ''
+  let authorChosen = '';
+  let titleChosen = '';
   return inquirer
     .prompt([
       {
@@ -23,19 +23,19 @@ const requestAnAuthorAndBook = () => {
       },
     ])
     .then(({ title, author }) => {
-      authorChosen = author
-      titleChosen = title
+      authorChosen = author;
+      titleChosen = title;
       console.log(
         "Good choice! I'll see if we have it, now processing, please wait..."
-      )
+      );
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=${title}+inauthor:${author}`
-      )
+      );
     })
     .then((searchObject) => {
-      const resultsArray = searchObject.data.items
+      const resultsArray = searchObject.data.items;
       if (!resultsArray) {
-        return Promise.reject(new Error('No Book Found'))
+        return Promise.reject(new Error('No Book Found'));
       } else {
         return inquirer.prompt([
           {
@@ -44,35 +44,49 @@ const requestAnAuthorAndBook = () => {
             message: `
 Please choose one of the top results for ${authorChosen}, ${titleChosen} --`,
             choices: [
-              `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
-              `${resultsArray[1].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
-              `${resultsArray[2].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
-              `${resultsArray[3].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
-              `${resultsArray[4].volumeInfo.title} by ${resultsArray[5].volumeInfo.authors}`,
+              {
+                name: `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
+                value: resultsArray[0].id,
+              },
+              {
+                name: `${resultsArray[1].volumeInfo.title} by ${resultsArray[1].volumeInfo.authors}`,
+                value: resultsArray[1].id,
+              },
+              {
+                name: `${resultsArray[2].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
+                value: resultsArray[2].id,
+              },
+              {
+                name: `${resultsArray[3].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
+                value: resultsArray[3].id,
+              },
+              {
+                name: `${resultsArray[4].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
+                value: resultsArray[4].id,
+              },
             ],
           },
-        ])
+        ]);
       }
     })
     .then(({ authorAndTitle }) => {
- 
       return axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=:${authorAndTitle}`
-      )
+        `https://www.googleapis.com/books/v1/volumes?q=${authorAndTitle}`
+      );
     })
     .then((searchObject) => {
-      const { title, authors } = searchObject.data.items[0].volumeInfo
+      const { title, authors } = searchObject.data.items[0].volumeInfo;
       const authorBook = `         
           Your Chosen book for ${authorChosen} ${titleChosen}:   
           Title: ${title}
-          Authors: ${authors}`
-      console.log(authorBook)
-      return searchObject
+          Authors: ${authors}`;
+      console.log(authorBook);
+      return searchObject;
     })
     .catch((err) => {
-      console.log('Error - No Book Found')
-    })
-}
+      console.log('Error - No Book Found');
+    });
+};
 
 const requestFurtherInfo = (searchObject) => {
   return inquirer
@@ -84,38 +98,38 @@ const requestFurtherInfo = (searchObject) => {
       },
     ])
     .then((answer) => {
-      const volInfo = searchObject.data.items[0].volumeInfo
-      const textToWrite = `          Title: ${volInfo.title|| 'No Title'}
+      const volInfo = searchObject.data.items[0].volumeInfo;
+      const textToWrite = `          Title: ${volInfo.title || 'No Title'}
           Authors: ${volInfo.authors || 'No Author'}
           Publisher: ${volInfo.publisher || 'No Publisher'}
           Published Date: ${volInfo.publishedDate || 'No Publish Date'}
           Description: 
           
-${volInfo.description||'No Description'} 
-          ___________`
+${volInfo.description || 'No Description'} 
+          ___________`;
       if (
         answer.moreInfo.toLowerCase() === 'y' ||
         answer.moreInfo.toLowerCase() === 'yes'
       ) {
-        console.log(textToWrite)
+        console.log(textToWrite);
       } else {
         console.log(
-          'thank you, your file author-bookName.txt will be sent to found-books folder, goodbye...'
-        )
+          'thank you, your file author-bookName.txt will be sent to books-found folder, goodbye...'
+        );
       }
-      return Promise.all([textToWrite, volInfo, fileCheck])
+      return Promise.all([textToWrite, volInfo, fileCheck]);
     })
     .then(([textToWrite, volInfo]) => {
       return fsPromise.writeFile(
         `${__dirname}/books-found/${volInfo.authors}-${volInfo.title}.txt`,
         textToWrite,
         'utf-8'
-      )
+      );
     })
     .catch((err) => {
-      console.log('Error - No Book Found')
-    })
-}
+      console.log('Error - No Book Found');
+    });
+};
 
 const repeatSearch = () => {
   return inquirer
@@ -127,18 +141,18 @@ const repeatSearch = () => {
     ])
     .then((answer) => {
       if (answer.repeat.toLowerCase() === 'y') {
-        masterFunction()
+        masterFunction();
       } else {
         console.log(`
         _______________________________________________
         Thank you, enjoy your book info!...Goodbye!...
-        _______________________________________________`)
+        _______________________________________________`);
       }
-    })
-}
+    });
+};
 
 const searchByGenre = () => {
-  let genreChosen = ''
+  let genreChosen = '';
   return inquirer
     .prompt([
       {
@@ -182,7 +196,7 @@ const searchByGenre = () => {
               'Thrillers',
             ],
           },
-        ])
+        ]);
       } else if (genre === 'Art') {
         return inquirer.prompt([
           {
@@ -203,19 +217,19 @@ const searchByGenre = () => {
               'Video Game Art',
             ],
           },
-        ])
+        ]);
       } else {
-        return { genre: genre }
+        return { genre: genre };
       }
     })
     .then(({ genre }) => {
-      genreChosen = genre
+      genreChosen = genre;
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=subject:${genre}`
-      )
+      );
     })
     .then((searchObject) => {
-      const resultsArray = searchObject.data.items
+      const resultsArray = searchObject.data.items;
       return inquirer.prompt([
         {
           type: 'list',
@@ -223,37 +237,52 @@ const searchByGenre = () => {
           message: `
 Please choose one of the top results for ${genreChosen} --`,
           choices: [
-            `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
-            `${resultsArray[1].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
-            `${resultsArray[2].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
-            `${resultsArray[3].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
-            `${resultsArray[4].volumeInfo.title} by ${resultsArray[5].volumeInfo.authors}`,
+            {
+              name: `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
+              value: resultsArray[0].id,
+            },
+            {
+              name: `${resultsArray[1].volumeInfo.title} by ${resultsArray[1].volumeInfo.authors}`,
+              value: resultsArray[1].id,
+            },
+            {
+              name: `${resultsArray[2].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
+              value: resultsArray[2].id,
+            },
+            {
+              name: `${resultsArray[3].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
+              value: resultsArray[3].id,
+            },
+            {
+              name: `${resultsArray[4].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
+              value: resultsArray[4].id,
+            },
           ],
         },
-      ])
+      ]);
     })
     .then(({ topGenre }) => {
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=:${topGenre}`
-      )
+      );
     })
     .then((searchObject) => {
       const { title, authors, publisher, publishedDate, description } =
-        searchObject.data.items[0].volumeInfo
+        searchObject.data.items[0].volumeInfo;
       const genreBook = `         
           Your Chosen book in ${genreChosen}:   
           Title: ${title}
-          Authors: ${authors}`
-      console.log(genreBook)
-      return searchObject
+          Authors: ${authors}`;
+      console.log(genreBook);
+      return searchObject;
     })
     .catch((err) => {
-      console.log('Error - No Book Found')
-    })
-}
+      console.log('Error - No Book Found');
+    });
+};
 
 const topBooksByAuthor = () => {
-  let authorChosen = ''
+  let authorChosen = '';
   return inquirer
     .prompt([
       {
@@ -262,16 +291,16 @@ const topBooksByAuthor = () => {
       },
     ])
     .then(({ author }) => {
-      authorChosen = author
+      authorChosen = author;
       console.log(
         `Good choice! Let's see if we can get ${author}'s top books, now processing, please wait...`
-      )
+      );
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=inauthor:${author}`
-      )
+      );
     })
     .then((searchObject) => {
-      const resultsArray = searchObject.data.items
+      const resultsArray = searchObject.data.items;
       return inquirer.prompt([
         {
           type: 'list',
@@ -279,25 +308,40 @@ const topBooksByAuthor = () => {
           message: `
 Please choose one of the top results for ${authorChosen} --`,
           choices: [
-            `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
-            `${resultsArray[1].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
-            `${resultsArray[2].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
-            `${resultsArray[3].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
-            `${resultsArray[4].volumeInfo.title} by ${resultsArray[5].volumeInfo.authors}`,
+            {
+              name: `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
+              value: resultsArray[0].id,
+            },
+            {
+              name: `${resultsArray[1].volumeInfo.title} by ${resultsArray[1].volumeInfo.authors}`,
+              value: resultsArray[1].id,
+            },
+            {
+              name: `${resultsArray[2].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
+              value: resultsArray[2].id,
+            },
+            {
+              name: `${resultsArray[3].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
+              value: resultsArray[3].id,
+            },
+            {
+              name: `${resultsArray[4].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
+              value: resultsArray[4].id,
+            },
           ],
         },
-      ])
+      ]);
     })
     .then(({ authorsTopBooks }) => {
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=:${authorsTopBooks}`
-      )
+      );
     })
-    .catch((err) => console.log('Error - No Books Found'))
-}
+    .catch((err) => console.log('Error - No Books Found'));
+};
 
 const topBooksByTitle = () => {
-  let titleChosen = ''
+  let titleChosen = '';
   return inquirer
     .prompt([
       {
@@ -306,14 +350,16 @@ const topBooksByTitle = () => {
       },
     ])
     .then(({ title }) => {
-      titleChosen = title
+      titleChosen = title;
       console.log(
         `Good choice! Let's see if we can get some matches to ${title}, now processing, please wait...`
-      )
-      return axios.get(`https://www.googleapis.com/books/v1/volumes?q=${title}`)
+      );
+      return axios.get(
+        `https://www.googleapis.com/books/v1/volumes?q=${title}`
+      );
     })
     .then((searchObject) => {
-      const resultsArray = searchObject.data.items
+      const resultsArray = searchObject.data.items;
       return inquirer.prompt([
         {
           type: 'list',
@@ -321,22 +367,37 @@ const topBooksByTitle = () => {
           message: `
 Please choose one of the top results for ${titleChosen} --`,
           choices: [
-            `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
-            `${resultsArray[1].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
-            `${resultsArray[2].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
-            `${resultsArray[3].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
-            `${resultsArray[4].volumeInfo.title} by ${resultsArray[5].volumeInfo.authors}`,
+            {
+              name: `${resultsArray[0].volumeInfo.title} by ${resultsArray[0].volumeInfo.authors}`,
+              value: resultsArray[0].id,
+            },
+            {
+              name: `${resultsArray[1].volumeInfo.title} by ${resultsArray[1].volumeInfo.authors}`,
+              value: resultsArray[1].id,
+            },
+            {
+              name: `${resultsArray[2].volumeInfo.title} by ${resultsArray[2].volumeInfo.authors}`,
+              value: resultsArray[2].id,
+            },
+            {
+              name: `${resultsArray[3].volumeInfo.title} by ${resultsArray[3].volumeInfo.authors}`,
+              value: resultsArray[3].id,
+            },
+            {
+              name: `${resultsArray[4].volumeInfo.title} by ${resultsArray[4].volumeInfo.authors}`,
+              value: resultsArray[4].id,
+            },
           ],
         },
-      ])
+      ]);
     })
     .then(({ titleTopBooks }) => {
       return axios.get(
         `https://www.googleapis.com/books/v1/volumes?q=:${titleTopBooks}`
-      )
+      );
     })
-    .catch((err) => console.log('Error - No Books Found'))
-}
+    .catch((err) => console.log('Error - No Books Found'));
+};
 
 const masterFunction = () => {
   return inquirer
@@ -369,44 +430,44 @@ const masterFunction = () => {
         requestAnAuthorAndBook().then((searchObject) => {
           if (searchObject) {
             requestFurtherInfo(searchObject).then(() => {
-              repeatSearch()
-            })
+              repeatSearch();
+            });
           } else {
-            repeatSearch()
+            repeatSearch();
           }
-        })
+        });
       } else if (menu === 'Genre') {
         searchByGenre().then((searchObject) => {
           if (searchObject) {
             requestFurtherInfo(searchObject).then(() => {
-              repeatSearch()
-            })
+              repeatSearch();
+            });
           } else {
-            repeatSearch()
+            repeatSearch();
           }
-        })
+        });
       } else if (menu === 'Top Books By Author') {
         topBooksByAuthor().then((searchObject) => {
           if (searchObject) {
             requestFurtherInfo(searchObject).then(() => {
-              repeatSearch()
-            })
+              repeatSearch();
+            });
           } else {
-            repeatSearch()
+            repeatSearch();
           }
-        })
+        });
       } else if (menu === 'Top Books By Title') {
         topBooksByTitle().then((searchObject) => {
           if (searchObject) {
             requestFurtherInfo(searchObject).then(() => {
-              repeatSearch()
-            })
+              repeatSearch();
+            });
           } else {
-            repeatSearch()
+            repeatSearch();
           }
-        })
+        });
       }
-    })
-}
+    });
+};
 
-masterFunction()
+masterFunction();
