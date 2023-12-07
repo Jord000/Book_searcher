@@ -1,4 +1,4 @@
-https://www.npmjs.com/package/book-searcher-tool
+https://www.npmjs.com/package/book-searcher-tool-cli
 
 # Installation & running
 ```console
