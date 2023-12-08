@@ -34,7 +34,7 @@ const requestAnAuthorAndBook = () => {
     })
     .then((searchObject) => {
       const resultsArray = searchObject.data.items;
-      if (!resultsArray) {
+        if (!resultsArray) {
         return Promise.reject(new Error('No Book Found'));
       } else {
         return inquirer.prompt([
@@ -71,11 +71,12 @@ Please choose one of the top results for ${authorChosen}, ${titleChosen} --`,
     })
     .then(({ authorAndTitle }) => {
       return axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=${authorAndTitle}`
+        `https://www.googleapis.com/books/v1/volumes/${authorAndTitle}`
       );
     })
     .then((searchObject) => {
-      const { title, authors } = searchObject.data.items[0].volumeInfo;
+     
+      const { title, authors } = searchObject.data.volumeInfo;
       const authorBook = `         
           Your Chosen book for ${authorChosen} ${titleChosen}:   
           Title: ${title}
@@ -84,6 +85,7 @@ Please choose one of the top results for ${authorChosen}, ${titleChosen} --`,
       return searchObject;
     })
     .catch((err) => {
+      console.log(err)
       console.log('Error - No Book Found');
     });
 };
@@ -98,7 +100,7 @@ const requestFurtherInfo = (searchObject) => {
       },
     ])
     .then((answer) => {
-      const volInfo = searchObject.data.items[0].volumeInfo;
+      const volInfo = searchObject.data.volumeInfo;
       const textToWrite = `          Title: ${volInfo.title || 'No Title'}
           Authors: ${volInfo.authors || 'No Author'}
           Publisher: ${volInfo.publisher || 'No Publisher'}
@@ -263,12 +265,12 @@ Please choose one of the top results for ${genreChosen} --`,
     })
     .then(({ topGenre }) => {
       return axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=:${topGenre}`
+        `https://www.googleapis.com/books/v1/volumes/${topGenre}`
       );
     })
     .then((searchObject) => {
       const { title, authors, publisher, publishedDate, description } =
-        searchObject.data.items[0].volumeInfo;
+        searchObject.data.volumeInfo;
       const genreBook = `         
           Your Chosen book in ${genreChosen}:   
           Title: ${title}
@@ -334,7 +336,7 @@ Please choose one of the top results for ${authorChosen} --`,
     })
     .then(({ authorsTopBooks }) => {
       return axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=:${authorsTopBooks}`
+        `https://www.googleapis.com/books/v1/volumes/${authorsTopBooks}`
       );
     })
     .catch((err) => console.log('Error - No Books Found'));
@@ -393,7 +395,7 @@ Please choose one of the top results for ${titleChosen} --`,
     })
     .then(({ titleTopBooks }) => {
       return axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=:${titleTopBooks}`
+        `https://www.googleapis.com/books/v1/volumes/${titleTopBooks}`
       );
     })
     .catch((err) => console.log('Error - No Books Found'));
