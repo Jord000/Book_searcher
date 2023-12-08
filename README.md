@@ -1,11 +1,11 @@
-https://www.npmjs.com/package/book-searcher-tool
+https://www.npmjs.com/package/book-searcher-tool-cli
 
 # Installation & running
 ```console
 npm i book-searcher-tool-cli
 ```
 ```console
-npx book-searcher
+npx book-searcher-tool-cli
 ```
 
 # Book-Searcher-Tool 
