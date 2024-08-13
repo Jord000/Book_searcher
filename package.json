@@ -16,7 +16,7 @@
   
   "homepage": "https://github.com/Jord000/Book_searcher.git#readme",
   "devDependencies": {
-    "jest": "^26.6.3"
+    "jest": "^29.7.0"
   },
   "dependencies": {
     "axios": "^1.1.3",
